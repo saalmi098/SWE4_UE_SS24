@@ -1,0 +1,27 @@
+C++ is a general-purpose programming language. It has imperative, 
+object-oriented and generic programming features, while also 
+providing the facilities for low-level memory manipulation.
+
+It is designed with a bias toward system programming 
+(e.g., for use in embedded systems or operating system kernels), 
+with performance, efficiency and flexibility of use as its design 
+requirements. C++ has also been found useful in many other contexts, 
+including desktop applications, servers (e.g. e-commerce, web search 
+or SQL servers), performance-critical applications (e.g. telephone 
+switches or space probes), and entertainment software.[3] C++ is a 
+compiled language, with implementations of it available on many 
+platforms and provided by various organizations, including the FSF, 
+LLVM, Microsoft and Intel.
+
+C++ is standardized by the International Organization for 
+Standardization (ISO), with the latest (and current) standard 
+version ratified and published by ISO in December 2014 as ISO/IEC 
+14882:2014 (informally known as C++14).[4] The C++ programming 
+language was initially standardised in 1998 as ISO/IEC 14882:1998, 
+which was then amended by the C++03, ISO/IEC 14882:2003, standard. 
+The current C++14 standard supersedes these and C++11, with new 
+features and an enlarged standard library. Before the initial 
+standardization in 1998, C++ was developed by Bjarne Stroustrup 
+at Bell Labs, starting in 1979, who wanted an efficient flexible 
+language (like the C language), which also provided high-level 
+features for program organization.
