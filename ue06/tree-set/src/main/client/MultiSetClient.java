@@ -25,5 +25,14 @@ public class MultiSetClient {
         for (Person p : personSet) {
             System.out.println(p);
         }
+
+        System.out.println("==== persons sorted by age ====");
+        SortedMultiSet<Person> personSortedByAgeDesc = new BSTMultiSet<>((Person p1, Person p2) -> p2.getAge() - p1.getAge());
+        personSortedByAgeDesc.add(new Person("Franz", "Mayer", 30));
+        personSortedByAgeDesc.add(new Person("Susi", "Kunz", 35));
+        personSortedByAgeDesc.add(new Person("Tamara", "Hinz", 21));
+        for (Person p : personSortedByAgeDesc) {
+            System.out.println(p);
+        }
     }
 }

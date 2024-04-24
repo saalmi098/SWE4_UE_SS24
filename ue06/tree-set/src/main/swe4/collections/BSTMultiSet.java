@@ -1,10 +1,11 @@
 package swe4.collections;
 
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Stack;
 
-public class BSTMultiSet<T extends Comparable<T>> implements SortedMultiSet<T> {
+public class BSTMultiSet<T> implements SortedMultiSet<T> {
 
     private static class Node<T> {
         private T value;
@@ -53,6 +54,22 @@ public class BSTMultiSet<T extends Comparable<T>> implements SortedMultiSet<T> {
 
     private Node<T> root = null;
     private int size = 0;
+    private Comparator<T> externalComparator;
+    private Comparator<T> comparator;
+
+    public BSTMultiSet() {
+        this(null);
+    }
+
+    public BSTMultiSet(Comparator<T> externalComparator) {
+        this.externalComparator = externalComparator;
+
+        if (externalComparator == null) {
+            this.comparator = (T t1, T t2) -> ((Comparable<T>)t1).compareTo(t2);
+        } else {
+            this.comparator = externalComparator;
+        }
+    }
 
     private Node<T> addRecursive(Node<T> parent, T value) {
         Node<T> newNode = new Node<>(value, null, null);
@@ -61,12 +78,12 @@ public class BSTMultiSet<T extends Comparable<T>> implements SortedMultiSet<T> {
             // man kann in Java keine Referenz auf eine Referenz übergeben)
             // -> Ausweichen auf Rückgabewert (von void zu Node<T>)
             return newNode;
-        } else if (value.compareTo(parent.value) < 0) { // insert left
-            // value.compareTo(parent.value) < 0 => value < parent.value
+        } else if (comparator.compare(value, parent.value) < 0) { // insert left
+            // value.compareTo(parent.value) < 0 = comparator.compare(value, parent.value)
+            // -> value < parent.value
             parent.left = addRecursive(parent.left, value);
         } else { // insert right
             parent.right = addRecursive(parent.right, value);
-
         }
 
         return parent;
@@ -82,7 +99,7 @@ public class BSTMultiSet<T extends Comparable<T>> implements SortedMultiSet<T> {
     public T get(T value) {
         Node<T> currentNode = root;
         while (currentNode != null) {
-            int compare = value.compareTo(currentNode.value);
+            int compare = comparator.compare(value, currentNode.value);
             if (compare < 0) { // value < currentNode.value
                 currentNode = currentNode.left;
             } else if (compare > 0) { // value > currentNode.value
