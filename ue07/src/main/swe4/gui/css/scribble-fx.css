@@ -1,0 +1,52 @@
+/* https://openjfx.io/javadoc/11/javafx.graphics/javafx/scene/doc-files/cssref.html */
+
+#color-pane {
+	-fx-spacing: 5;
+	-fx-alignment: center;
+	-fx-padding: 10 0 0 0; 
+}
+
+#left-button, #right-button, #up-button, #down-button {
+	-fx-padding: 5;
+}
+
+#left-button {
+	-fx-graphic: url('button-left.png');
+}
+
+#right-button {
+	-fx-graphic: url('button-right.png');
+}
+
+#up-button {
+	-fx-graphic: url('button-up.png');
+}
+
+#down-button {
+	-fx-graphic: url('button-down.png');
+}
+
+#top-pane {
+	-fx-spacing: 10;
+	-fx-padding: 10;
+}
+
+#button-pane {
+	-fx-alignment: center;
+}
+
+#control-pane {
+	-fx-spacing: 5;
+	-fx-padding: 10,20;
+	-fx-border-color: dimgrey;
+}
+
+#message-list {
+	-fx-pref-height: 100;
+	-fx-border-color: dimgrey;
+}
+
+#canvas {
+	-fx-border-color: dimgrey;
+	-fx-background-color: cornsilk
+}

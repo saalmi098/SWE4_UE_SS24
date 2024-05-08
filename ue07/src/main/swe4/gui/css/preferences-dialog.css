@@ -1,0 +1,20 @@
+#color-box {
+	-fx-spacing: 5;
+	-fx-alignment: center;
+	-fx-padding: 20 0 0 0; 
+}
+
+#ok-button, #cancel-button {
+	-fx-pref-width: 70;
+}
+
+#button-bar {
+	-fx-padding: 15 0 0 0;
+	-fx-alignment: center;
+}
+
+#pref-pane {
+	-fx-padding: 20;
+	-fx-hgap: 10;
+	-fx-vgap: 10;
+}
