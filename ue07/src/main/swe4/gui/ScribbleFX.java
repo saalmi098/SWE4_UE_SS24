@@ -6,15 +6,14 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Point2D;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ColorPicker;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 
 public class ScribbleFX extends Application {
 
@@ -33,24 +32,36 @@ public class ScribbleFX extends Application {
     private ColorPicker colorPicker;
 
     private Pane buttonPane;
-    private Pane canvas;
+    private ScribbleCanvas canvas;
+    private Preferences preferences = new Preferences();
 
     public static void main(String[] args) {
         Application.launch(args);
     }
 
+    private MenuBar createMenuBar(Stage stage) {
+        PreferencesDialog preferencesDialog = new PreferencesDialog(stage, preferences);
+        MenuItem prefItem = new MenuItem("Preferences...");
+        prefItem.setOnAction(event -> preferencesDialog.show());
+
+        Menu settingsMenu = new Menu("Settings");
+        settingsMenu.getItems().add(prefItem);
+
+        return new MenuBar(settingsMenu);
+    }
+
     @Override
-    public void start(javafx.stage.Stage stage) {
+    public void start(Stage stage) {
         stage.setTitle("ScribbleFX");
 
+        canvas = createCanvas(preferences);
         Pane controlPane = createControlPane();
         messageList = createMessageList();
-        canvas = createCanvas();
 
         Pane topPane = new HBox(controlPane, messageList);
         topPane.setId("top-pane");
 
-        VBox rootPane = new VBox(topPane, canvas);
+        VBox rootPane = new VBox(createMenuBar(stage), topPane, canvas);
         rootPane.setId("root-pane");
 
         Scene scene = new Scene(rootPane, 500, 500);
@@ -111,7 +122,11 @@ public class ScribbleFX extends Application {
 
         colorPicker = new ColorPicker();
         colorPicker.setId("color-picker");
-        colorPicker.setOnAction((ActionEvent event) -> appendMessage("Color '%s' selected".formatted(colorPicker.getValue())));
+        colorPicker.setValue(canvas.getLineColor());
+        colorPicker.setOnAction((ActionEvent event) -> {
+            appendMessage("Color '%s' selected".formatted(colorPicker.getValue()));
+            canvas.setLineColor(colorPicker.getValue());
+        });
 
         HBox colorPane = new HBox(new Label("Color: "), colorPicker);
         colorPane.setId("color-pane");
@@ -130,8 +145,8 @@ public class ScribbleFX extends Application {
         return controlPane;
     }
 
-    private Pane createCanvas() {
-        Pane canvas = new Pane();
+    private ScribbleCanvas createCanvas(Preferences preferences) {
+        ScribbleCanvas canvas = new ScribbleCanvas(preferences);
         canvas.setId("canvas");
         VBox.setVgrow(canvas, Priority.ALWAYS); // canvas will get remaining space in VBox
         VBox.setMargin(canvas, new Insets(10));
@@ -139,6 +154,12 @@ public class ScribbleFX extends Application {
         // styling:
         //canvas.setBorder(DEFAULT_BORDER);
         //canvas.setBackground(CANVAS_BACKGROUND);
+
+        canvas.setOnMouseClicked(event -> {
+            Point2D pos = new Point2D(event.getX(), event.getY());
+            appendMessage("Mouse clicked at %s".formatted(pos));
+            canvas.addLineSegment(pos);
+        });
 
         return canvas;
     }
@@ -191,6 +212,14 @@ public class ScribbleFX extends Application {
     private void handleButtonEvent(ActionEvent event) {
         if (event.getTarget() instanceof Button button) {
             appendMessage("Button '%s' pressed".formatted(button.getId()));
+            Direction direction = switch(button.getId()) {
+                case "left-button" -> Direction.LEFT;
+                case "right-button" -> Direction.RIGHT;
+                case "up-button" -> Direction.UP;
+                case "down-button" -> Direction.DOWN;
+                default -> throw new RuntimeException("Invalid direction");
+            };
+            canvas.addLineSegment(direction);
         }
     }
 
