@@ -1,0 +1,58 @@
+<html>
+
+  <head>
+    <title>Phone Book</title>
+    <style>
+			fieldset {
+    		margin: 20px 0px;
+			} 
+		</style>
+  </head>
+
+  <body>
+    <h1 style="text-align: center;">Phone Book</h1>
+
+    <form action="phonebook" method="get" accept-charset="UTF-8">
+ 
+      <label>Execute one of the actions below:</label>
+
+      <fieldset>
+        <legend><b>List</b> all persons:</legend>
+        <input type="submit" name="list" value="List"/>
+      </fieldset>
+
+      <fieldset>
+        <legend><b>Find</b> person by last name</legend>
+        <label for="findLastName">Pattern for Last name:</label>
+        <input type="text" id="findLastName" name="findLastName" size="10">
+        <input type="submit" name="find" value="Find">
+      </fieldset>
+
+      <fieldset>
+        <legend><b>Delete</b> person:</legend>
+        <label for="deleteId">ID of person to delete:</label>
+        <input type="text" id="deleteId" name="id" size="5">
+        <input type="submit" name="delete" value="Delete">
+      </fieldset>
+
+      <fieldset>
+        <legend><b>Insert</b> person:</legend>
+
+        <label for="insertFirstName">First name:</label>
+        <input type="text" id="insertFirstName" name="insertFirstName"   size="10">
+         
+        <label for="insertLastName">Last name:</label>
+        <input type="text" id="insertLastName" name="insertLastName" size="10">
+         
+        <label for="insertAddress">Address:</label>      
+        <input type="text" id="insertAddress" name="insertAddress" size="15">
+         
+        <label for="insertPhoneNumber">Phone number:</label> 
+        <input type="text" id="insertPhoneNumber" name="insertPhoneNumber" size="5">
+
+        <input type="submit" name="insert" value="Insert">
+      </fieldset>
+
+    </form>
+  </body>
+</html>

@@ -1,0 +1,146 @@
+<project name="phonebook-web" default="compile" basedir=".">
+
+	<!-- set %CATALINA_HOME% tomcat's home directory -->
+	<property environment="env" />
+	<property name="tomcat-manager-url" value="http://localhost:8080/manager/text" />
+	<property name="tomcat-manager-username" value="admin" />
+	<property name="tomcat-manager-password" value="admin" />
+	<property name="webapp.name" value="swe4" />
+	<property name="webapp.war" value="${webapp.name}.war" />
+	<property name="src.dir" value="${basedir}/src"/>
+	<property name="test.src.dir" value="${basedir}/src/test"/>
+	<property name="java.release" value="17"/>
+	<property name="target.basedir" value="${basedir}/bin"/>
+	<property name="target.dir" value="${target.basedir}/classes"/>
+	<property name="test.target.dir" value="${target.basedir}/test-classes"/>
+	<property name="web.dir" value="${basedir}/web" />
+	<property name="war.dir" value="${basedir}/war" />
+	<property name="user.lib.dir" value="${env.SWE4_HOME}/lib" />
+	<property name="local.lib.dir" value="${basedir}/lib"/>
+	<property name="deploy.dir" value="${env.SWE4_HOME}/webapps" />
+
+	<path id="junit.compile.path" >
+		<fileset dir="${user.lib.dir}/junit/jupiter/" erroronmissingdir="false"/>
+	</path>
+
+	<path id="junit.run.path">
+		<fileset dir="${user.lib.dir}/junit/platform/" erroronmissingdir="false"/>
+	</path>
+
+	<path id="lib.path">
+		<fileset dir="${user.lib.dir}/db" erroronmissingdir="true">
+			<include name="mysql-connector-j*.jar" />
+		</fileset>
+		<fileset id="servlet-api.libs" dir="${user.lib.dir}/servlet">
+			<include name="jakarta.servlet-api-*.jar" />
+		</fileset>
+		<fileset dir="${local.lib.dir}" erroronmissingdir="false">
+			<include name="*.jar"/>
+		</fileset>
+	</path>
+
+	<path id="local.libs.path">
+		<fileset dir="${local.lib.dir}" includes="*.jar" erroronmissingdir="false"/>
+	</path>
+
+	<path id="classpath">
+		<path refid="lib.path"/>
+		<pathelement path="${target.dir}"/>
+	</path>
+
+	<path id="test.classpath">
+		<path refid="classpath"/>
+		<path refid="junit.compile.path"/>
+		<path refid="junit.run.path"/>
+		<pathelement path="${test.target.dir}"/>
+	</path>
+
+	<fileset id="ant.libs" dir="${user.lib.dir}/ant">
+		<include name="*.jar" />
+	</fileset>
+
+	<path id="ant.classpath">
+		<fileset refid="ant.libs" />
+	</path>
+
+	<taskdef name="deploy" classname="org.apache.catalina.ant.DeployTask" classpathref="ant.classpath" />
+	<taskdef name="undeploy" classname="org.apache.catalina.ant.UndeployTask" classpathref="ant.classpath" />
+
+	<target name="check-tests-present">
+		<available file="${test.src.dir}" type="dir" property="test.src.dir.present"/>
+	</target>
+
+	<target name="all" depends="clean,compile" description="Clean build and dist directories, then compile" />
+
+	<target name="compile" description="Compile Java sources">
+		<mkdir dir="${target.dir}"/>
+		<javac includeantruntime="false" srcdir="${src.dir}" destdir="${target.dir}"
+					 release="${java.release}">
+			<include name="**/*.java"/>
+			<classpath refid="classpath"/>
+		</javac>
+	</target>
+
+	<target name="compile-tests" depends="compile,check-tests-present"
+					if="test.src.dir.present"
+					description="Compile Java test sources">
+		<mkdir dir="${test.target.dir}" />
+		<javac includeantruntime="false" srcdir="${test.src.dir}" destdir="${test.target.dir}"
+					 release="${java.release}">
+			<include name="**/*.java"/>
+			<classpath refid="classpath"/>
+			<classpath refid="junit.compile.path"/>
+		</javac>
+	</target>
+
+	<target name="create-war" depends="compile" description="Package into web archive">
+		<war destfile="${war.dir}/${webapp.war}" webxml="${web.dir}/web.xml">
+			<metainf dir="${web.dir}">
+				<include name="**/context.xml"/>
+			</metainf>
+			<fileset dir="${web.dir}">
+				<include name="**/*.html" />
+			</fileset>
+			<classes dir="${target.dir}">
+				<include name="**/*.class" />
+			</classes>
+		</war>
+	</target>
+
+	<target name="deploy" depends="create-war" description="Deploy to tomcat">
+		<deploy
+				url="${tomcat-manager-url}"
+				username="${tomcat-manager-username}"
+				password="${tomcat-manager-password}"
+				path="/${webapp.name}"
+				war="${war.dir}/${webapp.war}"
+				update="true" />
+	</target>
+
+	<target name="undeploy" description="deploy to tomcat">
+		<undeploy
+				failonerror="no"
+				url="${tomcat-manager-url}"
+				username="${tomcat-manager-username}"
+				password="${tomcat-manager-password}"
+				path="/${webapp.name}" />
+	</target>
+
+	<target name="clean" description="Delete old build and dist directories">
+		<delete dir="${target.dir}" />
+		<delete dir="${war.dir}" />
+	</target>
+
+	<target name="run-unit-tests" depends="compile-tests"
+			if="test.src.dir.present"
+			description="Run all unit tests">
+		<mkdir dir="${target.basedir}/test-results"/>
+		<junitlauncher haltOnFailure="false" printSummary="true">
+			<classpath refid="test.classpath"/>
+			<testclasses>
+				<fileset dir="${test.target.dir}" />
+			</testclasses>
+			<listener type="legacy-plain" outputdir="${target.basedir}/test-results" />
+		</junitlauncher>
+	</target>
+</project>

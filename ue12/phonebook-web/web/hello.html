@@ -1,0 +1,25 @@
+<!-- http://localhost:8080/swe4/hello.html -->
+
+<html>
+<head>
+   <title>Hello Servlet</title>
+</head>
+
+<body style="margin:20px 0px; padding:0px; text-align:center;">
+	<h1>Hello Servlet</h1>
+
+<!-- action hello ruft HelloServlet auf (siehe web.xml) -->
+<form method="get" action="hello">
+    <div>
+        <label for="name">Name:</label>
+        <input type="text" name="name" id="name" value="" />
+    </div>
+
+    <div style="margin-top: 0.5em;">
+        <input type="submit" name="button" value="Submit" />
+    </div>
+</form>
+
+</body>
+
+</html>
