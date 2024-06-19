@@ -1,0 +1,124 @@
+<project name="or-mapper" default="compile" basedir=".">
+
+  <!-- Specify your main class here. Omit the .class extension. -->
+  <property name="main.class" value="swe4.test.Main"/>
+
+	<property environment="env"/>
+	<property name="jar.name" value="${ant.project.name}.jar"/>
+	<property name="src.dir" value="${basedir}/src/main"/>
+	<property name="test.src.dir" value="${basedir}/src/test"/>
+	<property name="target.basedir" value="${basedir}/bin"/>
+	<property name="target.dir" value="${target.basedir}/classes"/>
+	<property name="test.target.dir" value="${target.basedir}/test-classes"/>
+	<property name="jar.dir" value="${basedir}/jar"/>
+	<property name="local.lib.dir" value="${basedir}/lib"/>
+	<property name="user.lib.dir" value="${env.SWE4_HOME}/lib"/>
+
+	<path id="junit.compile.path" >
+		<fileset dir="${user.lib.dir}/junit/jupiter/" erroronmissingdir="false"/>
+	</path>
+
+	<path id="junit.run.path">
+		<fileset dir="${user.lib.dir}/junit/platform/" erroronmissingdir="false"/>
+	</path>
+
+	<path id="lib.path">
+		<fileset dir="${user.lib.dir}/db" erroronmissingdir="true">
+			<include name="mysql-connector-j*.jar" />
+		</fileset>
+		<fileset dir="${local.lib.dir}" erroronmissingdir="false">
+			<include name="*.jar"/>
+		</fileset>
+	</path>
+
+	<path id="classpath">
+		<path refid="lib.path"/>
+		<pathelement path="${target.dir}"/>
+	</path>
+
+	<path id="test.classpath">
+		<path refid="classpath"/>
+		<path refid="junit.compile.path"/>
+		<path refid="junit.run.path"/>
+		<pathelement path="${test.target.dir}"/>
+	</path>
+
+	<target name="check-tests-present">
+		<available file="${test.src.dir}" type="dir" property="test.src.dir.present"/>
+	</target>
+
+	<target name="compile" description="Compile Java sources">
+		<mkdir dir="${target.dir}"/>
+		<javac includeantruntime="false" srcdir="${src.dir}" destdir="${target.dir}">
+			<include name="**/*.java"/>
+			<classpath refid="classpath"/>
+		</javac>
+	</target>
+
+	<target name="compile-tests" depends="compile,check-tests-present"
+					if="test.src.dir.present"
+					description="Compile Java test sources">
+		<mkdir dir="${test.target.dir}" />
+		<javac includeantruntime="false" srcdir="${test.src.dir}" destdir="${test.target.dir}">
+			<include name="**/*.java"/>
+			<classpath refid="classpath"/>
+			<classpath refid="junit.compile.path"/>
+		</javac>
+	</target>
+
+	<target name="run" depends="compile,copy-resources"
+					description="Run java application">
+		<java classname="${main.class}" fork="true">
+			<classpath refid="classpath"/>
+		</java>
+	</target>
+
+	<target name="copy-resources" description="Copy resource files">
+		<copy todir="${target.dir}">
+			<fileset dir="${src.dir}" excludes="**/*.java"/>
+		</copy>
+	</target>
+
+	<target name="copy-test-resources" depends="check-tests-present"
+					if="test.src.dir.present"
+					description="Copy test resource files">
+		<copy todir="${test.target.dir}">
+			<fileset dir="${test.src.dir}" excludes="**/*.java"/>
+		</copy>
+	</target>
+
+	<target name="create-jar" depends="compile,copy-resources"
+					description="Package to java archive">
+		<jar destfile="${jar.dir}/${jar.name}" basedir="${target.dir}">
+			<manifest>
+				<attribute name="Main-Class" value="${main.class}"/>
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="run-jar" depends="create-jar"
+					description="Run java application in java archive">
+		<java jar="${jar.dir}/${jar.name}" fork="true">
+			<classpath refid="lib.path"/>
+		</java>
+	</target>
+
+	<target name="clean" description="Delete old build and bin directories">
+		<delete dir="${target.basedir}"/>
+		<delete dir="${jar.dir}"/>
+	</target>
+
+	<target name="run-unit-tests" depends="compile-tests,copy-test-resources"
+			if="test.src.dir.present"
+			description="Run all unit tests">
+		<mkdir dir="${target.basedir}/test-results"/>
+		<junitlauncher haltOnFailure="false" printSummary="true">
+			<classpath refid="test.classpath"/>
+			<testclasses>
+				<fileset dir="${test.target.dir}" />
+			</testclasses>
+			<listener type="legacy-plain" outputdir="${target.basedir}/test-results" />
+		</junitlauncher>
+	</target>
+
+</project>
